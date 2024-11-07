@@ -29,7 +29,7 @@ under the License.
     </parent>
     <groupId>org.apache.tiles</groupId>
     <artifactId>tiles-request</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>2.0.0</version>
     <packaging>pom</packaging>
     <name>Tiles Request Framework</name>
     <description>Request abstraction for various request and template technologies</description>
@@ -62,11 +62,45 @@ under the License.
             <id>apache-site</id>
             <url>scm:svn:https://svn.apache.org/repos/asf/tiles/site/staging/tiles-request</url>
         </site>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>Sonatype repository</id>
+            <name>Sonatype's Maven repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Sonatype repository</id>
+            <name>Sonatype's Maven repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>21</source>
+                        <target>21</target>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <configuration>
@@ -82,12 +116,30 @@ under the License.
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.3.7</version>
+                    <version>5.1.9</version>
                     <inherited>true</inherited>
                 </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[17,)</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -121,12 +173,25 @@ under the License.
                     </execution>
                 </executions>
             </plugin>
+<!--
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-scm-publish-plugin</artifactId>
               <extensions>true</extensions>
                 <configuration>
                     <pubScmUrl>scm:svn:https://svn.apache.org/repos/asf/tiles/site/staging/tiles-request</pubScmUrl>
+                </configuration>
+            </plugin>
+-->
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
         </plugins>
@@ -165,7 +230,7 @@ under the License.
             <dependency>
                 <groupId>org.apache.tiles</groupId>
                 <artifactId>tiles-autotag-core-runtime</artifactId>
-                <version>1.1.0</version>
+                <version>2.0.0</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -192,9 +257,9 @@ under the License.
                 <scope>test</scope>
             </dependency>
             <dependency>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                    <version>2.5</version>
+                    <groupId>jakarta.servlet</groupId>
+                    <artifactId>jakarta.servlet-api</artifactId>
+                    <version>6.0.0</version>
                     <scope>provided</scope>
             </dependency>
             <dependency>
@@ -218,7 +283,7 @@ under the License.
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
-                <version>3.2.0.RELEASE</version>
+                <version>6.0.10</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -227,15 +292,62 @@ under the License.
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>javax.servlet.jsp</groupId>
-                <artifactId>jsp-api</artifactId>
-                <version>2.1</version>
+                <groupId>jakarta.servlet.jsp</groupId>
+                <artifactId>jakarta.servlet.jsp-api</artifactId>
+                <version>3.0.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.apache.velocity</groupId>
-                <artifactId>velocity-tools</artifactId>
-                <version>2.0</version>
+                <groupId>org.apache.velocity.tools</groupId>
+                <artifactId>velocity-tools-generic</artifactId>
+                <version>4.0</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>struts-taglib</artifactId>
+                        <groupId>org.apache.struts</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>struts-tiles</artifactId>
+                        <groupId>org.apache.struts</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>struts-core</artifactId>
+                        <groupId>org.apache.struts</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>sslext</artifactId>
+                        <groupId>sslext</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>commons-chain</artifactId>
+                        <groupId>commons-chain</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>commons-validator</artifactId>
+                        <groupId>commons-validator</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>commons-digester</artifactId>
+                        <groupId>commons-digester</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>commons-beanutils</artifactId>
+                        <groupId>commons-beanutils</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>dom4j</artifactId>
+                        <groupId>dom4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.velocity.tools</groupId>
+                <artifactId>velocity-tools-view</artifactId>
+                <version>4.0</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>struts-taglib</artifactId>
@@ -282,7 +394,7 @@ under the License.
             <dependency>
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
-                <version>2.3.15</version>
+                <version>2.3.33</version>
             </dependency>
             <dependency>
                 <groupId>com.github.spullara.mustache.java</groupId>
@@ -336,6 +448,33 @@ under the License.
                                         <exclude>**/*MANIFEST.MF</exclude>
                                     </excludes>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
